@@ -1,7 +1,9 @@
 #folders
 txt_files/
 json_files/
+.ipynb_checkpoints/
 
 # files
 requirements.txt
 Prepare_API_Paula.ipynb
+.DS_Store
