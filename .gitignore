@@ -1,0 +1,7 @@
+#folders
+txt_files/
+json_files/
+
+# files
+requirements.txt
+Prepare_API_Paula.ipynb
