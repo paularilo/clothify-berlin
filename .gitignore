@@ -6,4 +6,4 @@ json_files/
 # files
 requirements.txt
 Prepare_API_Paula.ipynb
-.DS_Store
+notebooks/.DS_Store
