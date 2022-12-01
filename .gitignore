@@ -2,8 +2,10 @@
 txt_files/
 json_files/
 .ipynb_checkpoints/
+notebooks/
 
 # files
 requirements.txt
 Prepare_API_Paula.ipynb
 notebooks/.DS_Store
+app/.DS_Store
