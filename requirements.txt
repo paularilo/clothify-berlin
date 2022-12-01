@@ -1,0 +1,8 @@
+requests
+nltk
+streamlit
+fstreamlit_folium
+folium
+pandas
+geopandas
+folium.plugins
