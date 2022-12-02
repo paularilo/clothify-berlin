@@ -8,8 +8,10 @@ from time import sleep
 
 
 #import data and geojson
-data = pd.read_csv('../data/geoshops.csv')
-geo_neighbourhoods = gpd.read_file("../data/neighbourhoods.geojson")
+#data = pd.read_csv('../data/geoshops.csv')
+#geo_neighbourhoods = gpd.read_file("../data/neighbourhoods.geojson")
+data = pd.read_csv('geoshops.csv')
+geo_neighbourhoods = gpd.read_file('neighbourhoods.geojson')
 
 # heatmaps for shop distribution in berlin
 #def search_venue(df, category):
