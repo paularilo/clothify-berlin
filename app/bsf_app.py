@@ -84,17 +84,17 @@ if st.session_state.button_on:
         col1, col2 = st.columns(2)
 
         with col1:
-            st.header("Map of shops")
+            st.header(f"{choice_shop}s in {choice_district}") # uppercase the shop type
             dist = search_venue(df1)
             heat = heatmap_venues(dist)
             st_folium(heat)
 
         with col2:
-            st.markdown('whatebver')
-            st.header(f"Mean rating of category shops in district")
+            st.markdown('whatever')
+            st.header(f"Mean rating of category shops in {choice_district}")
             st.markdown(f'barplot')
             #st.image("https://static.streamlit.io/examples/dog.jpg") # our barplot
-            st.header(f"Price level of category shops in district")
+            st.header(f"Price level of category shops in {choice_district}")
             #st.image("https://static.streamlit.io/examples/dog.jpg") # our barplot
 
 
