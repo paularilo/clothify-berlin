@@ -1,7 +1,7 @@
 #folders
 txt_files/
 json_files/
-.ipynb_checkpoints/
+notebooks/.ipynb_checkpoints/
 notebooks/
 
 # files

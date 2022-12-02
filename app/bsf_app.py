@@ -1,10 +1,15 @@
 import streamlit as st
-from streamlit_folium import st_folium
+import streamlit_folium
 import folium
 import pandas as pd
 import geopandas as gpd
 from folium.plugins import HeatMap
+from time import sleep
 
+
+#import data and geojson
+data = pd.read_csv('../data/geoshops.csv')
+geo_neighbourhoods = gpd.read_file("../data/neighbourhoods.geojson")
 
 # heatmaps for shop distribution in berlin
 #def search_venue(df, category):
@@ -12,6 +17,16 @@ from folium.plugins import HeatMap
   #  venues = df[df['categoryName'].apply(search)].reset_index(drop='index')
    # venues_lat_long = list(zip(venues['lat'], venues['lon']))
     #return venues_lat_long
+
+# Initialize session state for the button
+if 'button_on' not in st.session_state:
+    st.session_state.button_on = False
+if 'gap_on' not in st.session_state:
+    st.session_state.gap_on = False
+# function for placeholder
+def empty():
+    placeholder.empty()
+    sleep(0.01)
 
 def search_venue(df):
     return list(zip(df['lat'], df['lon']))
@@ -27,8 +42,8 @@ def heatmap_venues(data):
     HeatMap(data).add_to(map)
     return map
 
-#Home page:
 
+#Home page:
 st.sidebar.markdown('Explore shop types in Berlin')
 #Right side:  Two scrolling inputs
 choice_district = st.sidebar.selectbox('Choose a district',  ('Berlin', 'Steglitz - Zehlendorf', 'Mitte', 'Friedrichshain-Kreuzberg',
@@ -36,49 +51,40 @@ choice_district = st.sidebar.selectbox('Choose a district',  ('Berlin', 'Steglit
        'Neukölln', 'Reinickendorf', 'Spandau', 'Marzahn - Hellersdorf',
        'Treptow - Köpenick', 'Lichtenberg')) # District: list of 13 including Berlin
 choice_shop = st.sidebar.selectbox('Choose a shop type', ('baby store', 'hat shop')) # Shop type: list of categories to be decided
-btn = st.sidebar.button("Show results")
+if st.sidebar.button("Show results"):
+    st.session_state.button_on = True
+    st.session_state.gap_on = False
 
 st.sidebar.markdown('Calculate gap analysis')
 choice_shop = st.sidebar.selectbox('Choose a shop type', ("baby store", "women's clothing")) # Shop type: list of categories to be decided
-gap = st.sidebar.button('Show gap analysis')
+if st.sidebar.button('Show gap analysis'):
+    st.session_state.gap_on = True
+    st.session_state.button_on = False
 
-chckbox = st.sidebar.button("Back to Home")
+if st.sidebar.button("Back to Home"):
+    st.session_state.button_on = False
+    st.session_state.gap_on = False
 
 placeholder = st.empty()
-
-if not btn and not gap:
+# Main Page
+with placeholder.container():
     m= folium.Map(location=[52.5200, 13.405], zoom_start=5) # show map if no button pressed
-    st_data = st_folium(m)
+    st_folium(m)
 
-elif btn: # if show results button pressed
-    data = pd.read_csv('data/geoshops.csv')
-    geo_neighbourhoods = gpd.read_file("data/neighbourhoods.geojson")
 
+if st.session_state.button_on:
+    empty()
     if choice_district == 'Berlin':
-
         st.markdown('Here the plots for the search')
-        df = data
-
-
+        # df = data
         #st.markdown('There are {s} shops in your search')
     else:
         df1 = data[data["neighbourhood_group"] == choice_district]
         #st.markdown(len(df1))
-        #dist = search_venue(df1)
-        #heat = heatmap_venues(dist)
-        heat= folium.Map(location=[54.5200, 3.405], zoom_start=5) # show map if no button pressed
-        st_heat = st_folium(heat)
+        dist = search_venue(df1)
+        heat = heatmap_venues(dist)
+        st_folium(heat)
 
-        #st.markdown('Here the plots for the search')
-
-        #st.markdown(len(df1))
-
-    #data = dist[dist["categories"] == choice_district]
-
-elif gap: # if gap analysis button pressed
-    df = pd.DataFrame(range(0, 10))
-    placeholder.dataframe(df)
-
-if chckbox:
-    btn = False
-    #gap = False
+if st.session_state.gap_on:
+    empty()
+    st.markdown("Gap analysis in here")

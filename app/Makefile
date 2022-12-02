@@ -21,7 +21,7 @@ install_requirements:
 # ----------------------------------
 
 streamlit:
-	-@streamlit run pseudocode.py
+	-@streamlit run bsf_app.py
 
 
 # ----------------------------------
