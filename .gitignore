@@ -5,7 +5,6 @@ json_files/
 notebooks/
 
 # files
-requirements.txt
 Prepare_API_Paula.ipynb
 notebooks/.DS_Store
 app/.DS_Store
