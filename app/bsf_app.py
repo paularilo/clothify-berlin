@@ -7,17 +7,13 @@ from folium.plugins import HeatMap
 from time import sleep
 import os
 
-from bsf_package.bsf_logic.heatmap import search_venue
+#from bsf_package.bsf_logic.heatmap import search_venue
 
 dir_name = os.path.abspath(os.path.dirname(__file__))
-# join the bobrza1.csv to directory to get file path
 location = os.path.join(dir_name, 'geoshops.csv')
-# join the route.csv to directory to get file path
 location2 = os.path.join(dir_name, 'neighbourhoods.geojson')
 
 #import data and geojson
-#data = pd.read_csv('../data/geoshops.csv')
-#geo_neighbourhoods = gpd.read_file("../data/neighbourhoods.geojson")
 data = pd.read_csv(location)
 geo_neighbourhoods = gpd.read_file(location2)
 
