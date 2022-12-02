@@ -44,7 +44,7 @@ def heatmap_venues(data):
 
 
 #Home page:
-st.sidebar.markdown('Explore shop types in Berlin')
+st.sidebar.header('Explore shop types in Berlin')
 #Right side:  Two scrolling inputs
 choice_district = st.sidebar.selectbox('Choose a district',  ('Berlin', 'Steglitz - Zehlendorf', 'Mitte', 'Friedrichshain-Kreuzberg',
        'Pankow', 'Charlottenburg-Wilm.', 'Tempelhof - Schöneberg',
@@ -55,7 +55,7 @@ if st.sidebar.button("Show results"):
     st.session_state.button_on = True
     st.session_state.gap_on = False
 
-st.sidebar.markdown('Calculate gap analysis')
+st.sidebar.header('Calculate gap analysis')
 choice_shop = st.sidebar.selectbox('Choose a shop type', ("baby store", "women's clothing")) # Shop type: list of categories to be decided
 if st.sidebar.button('Show gap analysis'):
     st.session_state.gap_on = True
@@ -81,9 +81,22 @@ if st.session_state.button_on:
     else:
         df1 = data[data["neighbourhood_group"] == choice_district]
         #st.markdown(len(df1))
-        dist = search_venue(df1)
-        heat = heatmap_venues(dist)
-        st_folium(heat)
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.header("Map of shops")
+            dist = search_venue(df1)
+            heat = heatmap_venues(dist)
+            st_folium(heat)
+
+        with col2:
+            st.markdown('whatebver')
+            st.header(f"Mean rating of category shops in district")
+            st.markdown(f'barplot')
+            #st.image("https://static.streamlit.io/examples/dog.jpg") # our barplot
+            st.header(f"Price level of category shops in district")
+            #st.image("https://static.streamlit.io/examples/dog.jpg") # our barplot
+
 
 if st.session_state.gap_on:
     empty()
