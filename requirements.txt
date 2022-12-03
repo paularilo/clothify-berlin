@@ -5,4 +5,6 @@ streamlit_folium
 folium
 pandas
 geopandas
+matplotlib
+bsf
 #folium.plugins
