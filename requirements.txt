@@ -6,5 +6,5 @@ folium
 pandas
 geopandas
 matplotlib
-bsf
+#bsf
 #folium.plugins
