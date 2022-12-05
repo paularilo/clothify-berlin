@@ -66,4 +66,3 @@ def load_model(save_copy_locally=False) -> Model:
     print("\n✅ model loaded from disk")
 
     return model
-
