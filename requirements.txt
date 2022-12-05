@@ -6,5 +6,7 @@ folium
 pandas
 geopandas
 matplotlib
+sns
+pip
+setuptools>=26
 bsf==0.0.1
-#folium.plugins
