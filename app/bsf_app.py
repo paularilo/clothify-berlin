@@ -10,11 +10,13 @@ import geopandas as gpd
 from folium.plugins import HeatMap
 from folium import plugins
 from time import sleep
+#from google.cloud import storage
 
-from bsf_package.bsf_logic.design_streamlit import set_page_container_style
-from bsf_package.bsf_logic.maps import search_venue, heatmap_venues, display_district
-from bsf_package.bsf_logic.filterdata import filtercategory
-from bsf_package.bsf_logic.plots import plot_rating_berlin, plot_price_berlin,  plot_hist, plot_count_district
+
+#from bsf_package.bsf_logic.design_streamlit import set_page_container_style
+#from bsf_package.bsf_logic.maps import search_venue, heatmap_venues, display_district
+#from bsf_package.bsf_logic.filterdata import filtercategory
+#from bsf_package.bsf_logic.plots import plot_rating_berlin, plot_price_berlin,  plot_hist, plot_count_district
 
 dir_name = os.path.abspath(os.path.dirname(__file__))
 location = os.path.join(dir_name, 'clean_b1_veryfinal_categories.csv')
@@ -23,6 +25,41 @@ location2 = os.path.join(dir_name, 'neighbourhoods.geojson')
 #import data and geojson
 data = pd.read_csv(location)
 geo_neighbourhoods = gpd.read_file(location2)
+
+BACKGROUND_COLOR = 'pink'
+COLOR = 'black'
+
+def set_page_container_style(
+        max_width: int = 1100, max_width_100_percent: bool = False,
+        padding_top: int = 0, padding_right: int = 0, padding_left: int = 0, padding_bottom: int = 0,
+        color: str = COLOR, background_color: str = BACKGROUND_COLOR,
+    ):
+        if max_width_100_percent:
+            max_width_str = f'max-width: 100%;'
+        else:
+            max_width_str = f'max-width: {max_width}px;'
+        st.markdown(
+            f'''
+            <style>
+                .reportview-container .css-1lcbmhc .css-1outpf7 {{
+                    padding-top: 35px;
+                }}
+                .reportview-container .main .block-container {{
+                    {max_width_str}
+                    padding-top: {padding_top}rem;
+                    padding-right: {padding_right}rem;
+                    padding-left: {padding_left}rem;
+                    padding-bottom: {padding_bottom}rem;
+                }}
+                .reportview-container .main {{
+                    color: {color};
+                    background-color: {background_color};
+                }}
+            </style>
+            ''',
+            unsafe_allow_html=True,
+        )
+
 
 def search_venue(df):
     return list(zip(df['lat'], df['lon']))
@@ -176,10 +213,9 @@ st.title('Clothify')
 #st.sidebar.header('Settings')
 
 st.sidebar.header('Explore shop types in Berlin')
-choice_district = st.sidebar.selectbox('Choose a district',  ('Berlin', 'Steglitz - Zehlendorf', 'Mitte', 'Friedrichshain-Kreuzberg',
-       'Pankow', 'Charlottenburg-Wilm.', 'Tempelhof - Schöneberg',
-       'Neukölln', 'Reinickendorf', 'Spandau', 'Marzahn - Hellersdorf',
-       'Treptow - Köpenick', 'Lichtenberg')) # District: list of 13 including Berlin
+choice_district = st.sidebar.selectbox('Choose a district',  ('Berlin',  'Charlottenburg-Wilm.', 'Friedrichshain-Kreuzberg', 'Lichtenberg', 'Marzahn - Hellersdorf', 'Mitte', 'Neukölln', 'Pankow',
+'Reinickendorf', 'Spandau', 'Steglitz - Zehlendorf', 'Tempelhof - Schöneberg', 'Treptow - Köpenick'))
+
 if choice_district == 'Berlin':
     choice_shop = st.sidebar.selectbox('Choose a shop type', ('Baby clothing store', 'Bag store','Beauty supplies store','Bridal store',"Children's clothing store",
  'Costume store','Department store','Emboidery & Clothing alternation store','Fashion accessories store','Footwear store','Formal wear store',
