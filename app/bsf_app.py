@@ -12,7 +12,6 @@ from folium import plugins
 from time import sleep
 #from google.cloud import storage
 
-
 #from bsf_package.bsf_logic.design_streamlit import set_page_container_style
 #from bsf_package.bsf_logic.maps import search_venue, heatmap_venues, display_district
 #from bsf_package.bsf_logic.filterdata import filtercategory
@@ -75,8 +74,7 @@ def heatmap_venues(data):
     HeatMap(data).add_to(map)
     return map
 
-# problem with loc
-# pin map NOT WORKING
+# pin map
 def display_district(data, neighbourhood_var):
     if neighbourhood_var == 'Berlin':
         district_df = data
@@ -84,15 +82,14 @@ def display_district(data, neighbourhood_var):
         district_df = data[data.neighbourhood_group == neighbourhood_var]
         # Create an initial map of Berlin
         # Berlin latitude and longitude values
-
     latitude = 52.520008
     longitude = 13.404954
     # create map and display it
     berlin_map_district = folium.Map(location=[latitude, longitude], zoom_start=12)
     for i in range(0,len(district_df)):
         folium.Marker(
-        location=[district_df.iloc[i]['lat'], district_df.iloc[i]['lon']].add_to(berlin_map_district))
-        #popup=district_df.iloc[i]['title'], tooltip='Click for more information').add_to(berlin_map_district)
+        location = [district_df.iloc[i]['lat'], district_df.iloc[i]['lon']],
+        popup=district_df.iloc[i][['title','our_rating']].values[[0,1]], tooltip='Click for more information').add_to(berlin_map_district)
     return berlin_map_district
 
 # Calculate the amount of store categories per district
@@ -117,7 +114,6 @@ def shops_per_district(data, district):
                 shop_count[shop] = 1
 
     # TURN THE DICTIONARY INTO A DATAFRAME BEFORE PLOTTING IT
-
     # Turn the shop_count dictionary into a dataframe
     df = pd.DataFrame.from_dict(shop_count, orient='index')
     # Turn the store category into a column and reset index
@@ -260,28 +256,37 @@ if st.session_state.button_on:
         df = filtercategory(data, choice_shop)
         choice_shop = choice_shop[0] #take only string
         amount_shops = len(df) # amount of shops of that type in the selected district and category
-        header = f'{amount_shops} establishments are classified as {choice_shop.capitalize()} in Berlin.'
-        title = f'<p style="font-family:sans-serif; color:Black; font-size: 30px;"><b>{header}<b></p>'
-        st.markdown(title, unsafe_allow_html=True)
+        #header = f'{amount_shops} establishments are classified as {choice_shop.capitalize()} in Berlin.'
+        #title = f'<p style="font-family:sans-serif; color:Black; font-size: 30px;"><b>{header}<b></p>'
+        #st.markdown(title, unsafe_allow_html=True)
+        st.info(f'{amount_shops} establishments are classified as {choice_shop.capitalize()} in Berlin.')
 
-        dist = search_venue(df)
-        heat = heatmap_venues(dist)
-        st_folium(heat,width=1400, height=400)
-        #pin = display_district(df, choice_district)
-        #st_folium(pin,width=1000, height=400)
-        st.checkbox('Change to pinmap')
+        col1, col2, col3 = st.columns([1,4,1])
+        with col1:
+            st.write(' ')
+        with col2:
+            st.write(' ')
+        with col3:
+            st.checkbox('Change to pinmap')
+        #dist = search_venue(df)
+        #heat = heatmap_venues(dist)
+        #st_folium(heat,width=1400, height=400)
+        pin = display_district(df, choice_district)
+        st_folium(pin,width=1400, height=400)
+
 
         #col3, col4 = st.columns([5,5]) # here adjust width of columns
 
         #with col3:
         red = df[['neighbourhood_group','our_rating']].groupby('neighbourhood_group', as_index = False).mean()
         #plot_rating_berlin(red, choice_shop)
-        fig = plt.figure(figsize=(15, 10))
+        fig = plt.figure(figsize=(10, 5))
         sns.set(font_scale=2)
-        sns.set_theme(style="white",font="sans-serif", palette="Set2", rc={"font.size":20,"axes.titlesize":30})
-        sns.barplot(y = 'neighbourhood_group', x = 'our_rating', data = red, ci=False, orient = 'h').set(title=f'Mean rating of {choice_shop.capitalize()}s in each district',xlabel ="", ylabel = "")
+        sns.set_theme(style="white",font="sans-serif", palette="Set2", rc={"font.size":20,"axes.titlesize":16})
+        sns.barplot(y = 'neighbourhood_group', x = 'our_rating', data = red, ci=False, orient = 'h').set(title=f'Mean Google rating {choice_shop.capitalize()}s \nin each district in 2019-2022',xlabel ="", ylabel = "")
         plt.xlim(0, 5)
-        plt.tick_params(axis='both', which='major', labelsize=20)
+        plt.xlabel('Stars on Google Maps platform', fontsize=14)
+        plt.tick_params(axis='both', which='major', labelsize=14)
         st.pyplot(fig)
 
         #with col4:
@@ -295,15 +300,37 @@ if st.session_state.button_on:
         y_price_med = df.groupby(['neighbourhood_group'],as_index=False).sum()['€€'].tolist()
         y_price_exp = df.groupby(['neighbourhood_group'],as_index=False).sum()['€€€'].tolist()
         x_axis = np.arange(len(x_price))
-        fig2 = plt.figure(figsize=(15, 20))
-        plt.barh(x_axis - 0.3, y_price_cheap, label="€", height = 0.3)
-        plt.barh(x_axis, y_price_med,label="€€", height = 0.3)
-        plt.barh(x_axis + 0.3,y_price_exp, label="€€€", height = 0.3    )
-        plt.legend(fontsize = 20)
-        plt.yticks(x_axis,x_price, fontsize = 30)
-        plt.xticks(fontsize = 30)
-        plt.title(f'Price level of {choice_shop.capitalize()}s in each district', fontsize=35)
-        st.pyplot(fig2)
+        if sum(y_price_cheap) == 0 and sum(y_price_med) == 0 and sum(y_price_exp) == 0:
+                    st.warning(f'Unfortunately, we do not have any data on price levels for {choice_shop}s.')
+        else:
+            fig2 = plt.figure(figsize=(10, 5))
+            sns.set(font_scale = 2)
+            plt.barh(x_axis - 0.3, y_price_cheap, label="€", height = 0.3)
+            plt.barh(x_axis, y_price_med,label="€€", height = 0.3)
+            plt.barh(x_axis + 0.3,y_price_exp, label="€€€", height = 0.3    )
+            plt.legend(fontsize = 10)
+            plt.yticks(x_axis,x_price, fontsize = 14)
+            plt.xticks(fontsize = 14)
+            plt.xlabel('Nr. of shops', fontsize=14)
+            plt.title(f'Price level of {choice_shop.capitalize()}s in each district**', fontsize=16)
+            st.pyplot(fig2)
+
+
+            mystyle = '''
+    <style>
+        p {
+            text-align: justify;
+        }
+    </style>
+    '''
+            st.markdown(mystyle, unsafe_allow_html=True)
+
+            c1, c2, c3 = st.columns((1, 1, 1))
+
+            with c3:
+                message2 = f'**Price information is based on a subset of shops with public price level on the Google Maps platform.'
+                st.info(message2)
+
 
     else: # if choose a district
 
@@ -318,9 +345,12 @@ if st.session_state.button_on:
             #st.header(f'{amount_shops} establishments categorize as clothing shops in {choice_district}') # uppercase the shop type
             st.info(f'{amount_shops} establishments categorize as clothing shops in {choice_district}.')
 
-            dist = search_venue(df)
-            heat = heatmap_venues(dist)
-            st_folium(heat,width=1400, height=400)
+            #dist = search_venue(df)
+            #heat = heatmap_venues(dist)
+            #st_folium(heat,width=1400, height=400)
+            pin = display_district(df, choice_district)
+            st_folium(pin,width=1400, height=400)
+            st.checkbox('Change to pinmap')
             shops_per_district(data, choice_district)
 
         if choice_shop != 'All shops':
@@ -342,9 +372,12 @@ if st.session_state.button_on:
                     st.info(f'{amount_shops} establishment is classified as {choice_shop.capitalize()} in {choice_district}.')
 
 
-                dist = search_venue(df)
-                heat = heatmap_venues(dist)
-                st_folium(heat,width=1400, height=400)
+                #dist = search_venue(df)
+                #heat = heatmap_venues(dist)
+                #st_folium(heat,width=1400, height=400)
+                pin = display_district(df, choice_district)
+                st_folium(pin,width=1400, height=400)
+                st.checkbox('Change to pinmap')
 
                 #with col2:
                 mean_rat = np.round(df['our_rating'].mean(),2)
@@ -366,15 +399,22 @@ if st.session_state.button_on:
                 st.warning(message2)
 
                 #plot_hist(df, choice_shop, choice_district)
-                col1, col2 = st.columns([5,5]) # here adjust width of columns
+                #col1, col2 = st.columns([5,5]) # here adjust width of columns
+                col1, col2, col3 = st.columns([1,4,1])
 
                 with col1:
-                    fig = plt.figure(figsize=(4, 3))
-                    sns.set_theme(style="white",font="sans-serif", palette="Set2", rc={"font.size":20,"axes.titlesize":30})
+                    st.write(' ')
+                with col2:
+                    fig = plt.figure(figsize=(15, 10))
+                    sns.set(font_scale = 2)
+                    #sns.set_theme(style="white",font="sans-serif", palette="Set2", rc={"font.size":20,"axes.titlesize":30})
                     sns.distplot(df['our_rating'], bins = 5, kde=False, hist_kws={'range':(0,5)}, color = 'blue')
-                #sns.title(f'Distribution of ratings of establishments selling {choice_shop.capitalize()}s in {choice_district}', fontsize=35)
+                    fig.suptitle(f'Mean rating of establishments \nclassified as {choice_shop.capitalize()}s in {choice_district}', fontsize=24, fontdict={"weight": "bold"})
+                    plt.xlabel('Mean Google rating 2019-2022', fontsize=22)
+                    plt.ylabel('Nr. of restaurants', fontsize=22)
                     st.pyplot(fig)
-
+                with col3:
+                    st.write(' ')
 
             else:
                 st.info(f'There are no establishments categorized as {choice_shop.capitalize()} in {choice_district}.')
