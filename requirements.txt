@@ -1,4 +1,3 @@
-requests
 nltk
 streamlit
 streamlit_folium
@@ -9,4 +8,5 @@ matplotlib
 sns
 pip
 setuptools>=26
-bsf==0.0.1
+#bsf==0.0.1
+#google
