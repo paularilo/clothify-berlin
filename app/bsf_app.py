@@ -101,7 +101,14 @@ def display_district(data, neighbourhood_var):
         popup=popup, tooltip='Click for more information').add_to(berlin_map_district)
     return berlin_map_district
 
-# Calculate the amount of store categories per district
+cat = ['Baby clothing store', 'Bag store','Beauty supplies store','Bridal store',"Children's clothing store",
+ 'Costume store','Department store','Emboidery & Clothing alternation store','Fashion accessories store','Footwear store','Formal wear store',
+ 'General clothing store','Hat store','Home supplies store','Jeans store','Jewelry store','Leather store','Maternity store',
+ "Men's clothing store",'Optical store','Outlet store','Pet store','Plus size clothing store','Second hand clothing store',
+ 'Shopping mall','Sportswear store','Swimwear store','T-shirt store','Underwear store','Vintage clothing store',
+ 'Wholesalers store',"Women's clothing store",'Work clothing store','Youth clothing store']
+
+# WE DON'T NEED THIS ACTUALLY Calculate the amount of store categories per district
 def shops_per_district(data, district):
     data = data[data["neighbourhood_group"] == district]
     data["categories_list"] = data.final_categories.apply(lambda x: x[1:-1].split(','))
@@ -121,6 +128,7 @@ def shops_per_district(data, district):
                 shop_count[shop] = shop_count[shop] + 1
             else:
                 shop_count[shop] = 1
+
     # TURN THE DICTIONARY INTO A DATAFRAME BEFORE PLOTTING IT
     # Turn the shop_count dictionary into a dataframe
     df = pd.DataFrame.from_dict(shop_count, orient='index')
@@ -134,9 +142,10 @@ def shops_per_district(data, district):
     # If you want the df in aphabetical order uncomment the next line
     # df.sort_values('Store Category', ascending=True)
     # If you want the df in ascending order (based on Number of stores) uncomment the next line
-    df.sort_values('Number of stores', ascending = True)
+    # df.sort_values('Number of stores', ascending = True)
     # If you want the df in descending order (based on Number of stores) uncomment the next line
     # df.sort_values('Number of stores', ascending = False)
+
     # NOW PLOT THE DATAFRAME
     store_category = df['Store Category']
     num_stores = df['Number of stores']
@@ -160,20 +169,97 @@ def shops_per_district(data, district):
             alpha = 0.2)
     # Show top values
     #ax.invert_yaxis()
+
     # Add annotation to bars
     for i in ax.patches:
         plt.text(i.get_width()+0.2, i.get_y()+0.2,
                  str(round((i.get_width()), 2)),
                  fontsize = 10, fontweight ='bold',
                  color ='grey')
+
     # Add Plot Title
-    ax.set_title(f"Number of store categories in district",
+    ax.set_title(f"Number of shops  in district",
                  loc ='center' )
+
     # Show Plot
     plt.show()
     return st.pyplot(plt)
 
+def mean_per_district(data, district):
+
+    data = data[data["neighbourhood_group"] == district]
+    data["categories_list"] = data.final_categories.apply(lambda x: x[1:-1].split(','))
+    data.reset_index(inplace=True)
+    data.drop(columns=['index'])
+    all_categories = []
+    for i in range(len(data)):
+        for x in range(len(data.categories_list[i])):
+            all_categories.append([data.categories_list[i][x]])
+    for i in range(len(all_categories)):
+        all_categories[i][0].strip()
+        all_categories[i][0] = all_categories[i][0].strip()
+    shop_count = {}
+    for i in range(len(all_categories)):
+        for shop in all_categories[i]:
+            if shop in shop_count:
+                shop_count[shop] = shop_count[shop] + 1
+            else:
+                shop_count[shop] = 1
+    mean_per_category = []
+    for i in range(len(cat)):
+      mask = data.final_categories.apply(lambda x: any(item for item in cat[i] if item in x))
+      df2 = data[mask]
+      tmp = df2['our_rating']
+      mean_per_category.append(np.mean(tmp[i]))
+
+    rat = pd.DataFrame({'Store Category': cat,'Mean rating': mean_per_category})
+    # TURN THE DICTIONARY INTO A DATAFRAME BEFORE PLOTTING IT
+    # Turn the shop_count dictionary into a dataframe
+    df = pd.DataFrame.from_dict(shop_count, orient='index')
+    # Turn the store category into a column and reset index
+
+    df = df.reset_index()
+    df = df.rename(columns = {'index': 'Store Category', 0:'Number of stores'})
+    df['Store Category'] = df['Store Category'].apply(lambda x: str(x).replace("'", ""))
+    df['Store Category'] = df['Store Category'].apply(lambda x: str(x).replace('"', ""))
+    df = df.merge(rat, on = 'Store Category')
+
+    store_category = df['Store Category']
+    num_stores = df['Number of stores']
+    mean_stores = df['Mean rating']
+
+    # Figure Size
+    fig, ax = plt.subplots(figsize =(16, 9))
+    # Horizontal Bar Plot
+    sns.set(font_scale=2)
+    sns.set_theme(style="white",font="sans-serif", palette="Set2", rc={"font.size":20,"axes.titlesize":16})
+    sns.barplot(y = 'Store Category', x = 'Mean rating', data = df, ci=False, orient = 'h').set(title=f'Mean Google rating of each shop type in {choice_district} in 2019-2022',xlabel ="", ylabel = "")
+    # Remove axes splines
+    for s in ['top', 'bottom', 'left', 'right']:
+        ax.spines[s].set_visible(False)
+    # Remove x, y Ticks
+    ax.xaxis.set_ticks_position('none')
+    ax.yaxis.set_ticks_position('none')
+    # Add padding between axes and labels
+    ax.xaxis.set_tick_params(pad = 5)
+    ax.yaxis.set_tick_params(pad = 10)
+    # Add x, y gridlines
+    ax.grid(b = True, color ='grey',
+            linestyle ='-.',
+            linewidth = 0.5,
+            alpha = 0.2)
+    # Show top values
+    #ax.invert_yaxis()
+
+    # Add annotation to bars
+    for i, p in enumerate(ax.patches):
+            width = p.get_width()
+            ax.text(width + 0.07, p.get_y()+p.get_height()/1.3, df['Number of stores'].loc[i],ha="center", fontsize = 12)
+
+    # Show Plot
+    return st.pyplot(plt)
 # filter shop within list
+
 def filtercategory(data, choice_shop):
     if choice_shop == 'All shops':
         df = df
@@ -353,7 +439,7 @@ if st.session_state.button_on:
                 heat = heatmap_venues(dist)
                 st_folium(heat,width=1400, height=400)
 
-            shops_per_district(df, choice_district)
+            mean_per_district(df, choice_district)
 
         if choice_shop != 'All shops':
             df = data[data["neighbourhood_group"] == choice_district]
