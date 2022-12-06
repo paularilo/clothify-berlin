@@ -278,7 +278,6 @@ if st.session_state.button_on:
             heat = heatmap_venues(dist)
             st_folium(heat,width=1400, height=400)
 
-
         red_1 = df[['neighbourhood_group','our_rating']].groupby('neighbourhood_group', as_index = False).mean()
         red_2 = df[['neighbourhood_group','our_rating']].groupby('neighbourhood_group', as_index = False).count()
         red_2.rename(columns= {'our_rating':'count'}, inplace=True)
@@ -286,7 +285,7 @@ if st.session_state.button_on:
         fig, ax= plt.subplots(figsize=(10, 5))
         sns.set(font_scale=2)
         sns.set_theme(style="white",font="sans-serif", palette="Set2", rc={"font.size":20,"axes.titlesize":16})
-        sns.barplot(y = 'neighbourhood_group', x = 'our_rating', data = red, ci=False, orient = 'h').set(title=f'Mean Google rating {choice_shop.capitalize()}s \nin each district in 2019-2022',xlabel ="", ylabel = "")
+        sns.barplot(y = 'neighbourhood_group', x = 'our_rating', data = red, ci=False, orient = 'h').set(title=f'Mean Google rating of {choice_shop.capitalize()}s \nin each district in 2019-2022',xlabel ="", ylabel = "")
         for i, p in enumerate(ax.patches):
             width = p.get_width()
             ax.text(width + 0.07, p.get_y()+p.get_height()/1.4, red["count"].loc[i],ha="center", fontsize = 12)
@@ -295,21 +294,6 @@ if st.session_state.button_on:
         plt.grid(False)
         plt.tick_params(axis='both', which='major', labelsize=14)
         st.pyplot(fig)
-
-
-
-
-        #fig, ax = plt.figure(figsize=(10, 5))
-        #sns.set(font_scale=2)
-        #sns.set_theme(style="white",font="sans-serif", palette="Set2", rc={"font.size":20,"axes.titlesize":16})
-        #sns.barplot(y = 'neighbourhood_group', x = 'our_rating', data = red, ci=False, orient = 'h').set(title=f'Mean Google rating {choice_shop.capitalize()}s \nin each district in 2019-2022',xlabel ="", ylabel = "")
-        #for i, p in enumerate(ax.patches):
-        #    width = p.get_width()
-        #    ax.text(width + 0.1, p.get_y()+p.get_height()/2., red["count"][i],ha="center")
-        #plt.xlim(0, 5)
-        #plt.xlabel('Stars on Google Maps platform', fontsize=14)
-        #plt.tick_params(axis='both', which='major', labelsize=14)
-        #st.pyplot(fig)
 
         #with col4:
          #plot the price (#### dont plot if 0!!!)
@@ -373,6 +357,24 @@ if st.session_state.button_on:
                 dist = search_venue(df)
                 heat = heatmap_venues(dist)
                 st_folium(heat,width=1400, height=400)
+
+
+        red_1 = df[['neighbourhood_group','our_rating']].groupby('neighbourhood_group', as_index = False).mean()
+        red_2 = df[['neighbourhood_group','our_rating']].groupby('neighbourhood_group', as_index = False).count()
+        red_2.rename(columns= {'our_rating':'count'}, inplace=True)
+        red = red_1.merge(red_2, on = 'neighbourhood_group', how = "left")
+        fig, ax= plt.subplots(figsize=(10, 5))
+        sns.set(font_scale=2)
+        sns.set_theme(style="white",font="sans-serif", palette="Set2", rc={"font.size":20,"axes.titlesize":16})
+        sns.barplot(y = 'neighbourhood_group', x = 'our_rating', data = red, ci=False, orient = 'h').set(title=f'Mean Google rating of {choice_shop.capitalize()}s \nin each district in 2019-2022',xlabel ="", ylabel = "")
+        for i, p in enumerate(ax.patches):
+            width = p.get_width()
+            ax.text(width + 0.07, p.get_y()+p.get_height()/1.4, red["count"].loc[i],ha="center", fontsize = 12)
+        plt.xlim(0, 5)
+        plt.xlabel('Stars on Google Maps platform', fontsize=14)
+        plt.grid(False)
+        plt.tick_params(axis='both', which='major', labelsize=14)
+        st.pyplot(fig)
 
 
 
