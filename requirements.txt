@@ -5,7 +5,7 @@ folium
 pandas
 geopandas
 matplotlib
-sns
+seaborn
 pip
 setuptools>=26
 #bsf==0.0.1
