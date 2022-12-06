@@ -121,7 +121,6 @@ def shops_per_district(data, district):
                 shop_count[shop] = shop_count[shop] + 1
             else:
                 shop_count[shop] = 1
-
     # TURN THE DICTIONARY INTO A DATAFRAME BEFORE PLOTTING IT
     # Turn the shop_count dictionary into a dataframe
     df = pd.DataFrame.from_dict(shop_count, orient='index')
@@ -138,7 +137,6 @@ def shops_per_district(data, district):
     df.sort_values('Number of stores', ascending = True)
     # If you want the df in descending order (based on Number of stores) uncomment the next line
     # df.sort_values('Number of stores', ascending = False)
-
     # NOW PLOT THE DATAFRAME
     store_category = df['Store Category']
     num_stores = df['Number of stores']
@@ -162,18 +160,15 @@ def shops_per_district(data, district):
             alpha = 0.2)
     # Show top values
     #ax.invert_yaxis()
-
     # Add annotation to bars
     for i in ax.patches:
         plt.text(i.get_width()+0.2, i.get_y()+0.2,
                  str(round((i.get_width()), 2)),
                  fontsize = 10, fontweight ='bold',
                  color ='grey')
-
     # Add Plot Title
     ax.set_title(f"Number of store categories in district",
                  loc ='center' )
-
     # Show Plot
     plt.show()
     return st.pyplot(plt)
@@ -358,25 +353,7 @@ if st.session_state.button_on:
                 heat = heatmap_venues(dist)
                 st_folium(heat,width=1400, height=400)
 
-
-        red_1 = df[['neighbourhood_group','our_rating']].groupby('neighbourhood_group', as_index = False).mean()
-        red_2 = df[['neighbourhood_group','our_rating']].groupby('neighbourhood_group', as_index = False).count()
-        red_2.rename(columns= {'our_rating':'count'}, inplace=True)
-        red = red_1.merge(red_2, on = 'neighbourhood_group', how = "left")
-        fig, ax= plt.subplots(figsize=(10, 5))
-        sns.set(font_scale=2)
-        sns.set_theme(style="white",font="sans-serif", palette="Set2", rc={"font.size":20,"axes.titlesize":16})
-        sns.barplot(y = 'neighbourhood_group', x = 'our_rating', data = red, ci=False, orient = 'h').set(title=f'Mean Google rating of {choice_shop.capitalize()}s \nin each district in 2019-2022',xlabel ="", ylabel = "")
-        for i, p in enumerate(ax.patches):
-            width = p.get_width()
-            ax.text(width + 0.07, p.get_y()+p.get_height()/1.4, red["count"].loc[i],ha="center", fontsize = 12)
-        plt.xlim(0, 5)
-        plt.xlabel('Stars on Google Maps platform', fontsize=14)
-        plt.grid(False)
-        plt.tick_params(axis='both', which='major', labelsize=14)
-        st.pyplot(fig)
-
-
+            shops_per_district(df, choice_district)
 
         if choice_shop != 'All shops':
             df = data[data["neighbourhood_group"] == choice_district]
