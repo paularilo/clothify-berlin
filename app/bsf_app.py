@@ -343,7 +343,7 @@ placeholder = st.empty()
 # Main Page
 with placeholder.container():
     m = folium.Map(location=[52.5200, 13.405], zoom_start=12) # show map if no button pressed
-    st_folium(m, width=1500, height=600)
+    st_folium(m, width=1500, height=400)
 
 if st.session_state.button_on:
     empty()
