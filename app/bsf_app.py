@@ -92,7 +92,7 @@ def display_district(data, neighbourhood_var):
             <h4>{district_df.iloc[i]['title']}:</h4>
             <li>Rating: {district_df.iloc[i]['our_rating']}</li>
             <li>Nr. reviews: {district_df.iloc[i]['star_nr']}</li>
-            <li>Categories: {district_df.iloc[i]['final_categories']}</li>
+            <li>Categories: {district_df.iloc[i]['final_categories'][1:-1]}</li>
             """
         iframe = folium.IFrame(html=html, width=200, height=100)
         popup = folium.Popup(iframe, max_width=350)
@@ -102,7 +102,7 @@ def display_district(data, neighbourhood_var):
     return berlin_map_district
 
 cat = ['Baby clothing store', 'Bag store','Beauty supplies store','Bridal store',"Children's clothing store",
- 'Costume store','Department store','Emboidery & Clothing alternation store','Fashion accessories store','Footwear store','Formal wear store',
+ 'Costume store','Department store','Tailor store','Fashion accessories store','Footwear store','Formal wear store',
  'General clothing store','Hat store','Home supplies store','Jeans store','Jewelry store','Leather store','Maternity store',
  "Men's clothing store",'Optical store','Outlet store','Pet store','Plus size clothing store','Second hand clothing store',
  'Shopping mall','Sportswear store','Swimwear store','T-shirt store','Underwear store','Vintage clothing store',
@@ -223,6 +223,8 @@ def mean_per_district(data, district):
     df['Store Category'] = df['Store Category'].apply(lambda x: str(x).replace("'", ""))
     df['Store Category'] = df['Store Category'].apply(lambda x: str(x).replace('"', ""))
     df = df.merge(rat, on = 'Store Category')
+    df = df.sort_values('Mean rating', ascending = True)
+
 
     store_category = df['Store Category']
     num_stores = df['Number of stores']
@@ -232,7 +234,7 @@ def mean_per_district(data, district):
     fig, ax = plt.subplots(figsize =(16, 9))
     # Horizontal Bar Plot
     sns.set(font_scale=2)
-    sns.set_theme(style="white",font="sans-serif", palette="Set2", rc={"font.size":20,"axes.titlesize":16})
+    sns.set_theme(style="white",font="sans-serif", palette="Set2", rc={"font.size":20,"axes.titlesize":18})
     sns.barplot(y = 'Store Category', x = 'Mean rating', data = df, ci=False, orient = 'h').set(title=f'Mean Google rating of each shop type in {choice_district} in 2019-2022',xlabel ="", ylabel = "")
     # Remove axes splines
     for s in ['top', 'bottom', 'left', 'right']:
@@ -255,7 +257,11 @@ def mean_per_district(data, district):
     for i, p in enumerate(ax.patches):
             width = p.get_width()
             ax.text(width + 0.07, p.get_y()+p.get_height()/1.3, df['Number of stores'].loc[i],ha="center", fontsize = 12)
+    plt.xlim(0, 5)
+    plt.xlabel('Stars on Google Maps platform', fontsize=16)
 
+    plt.grid(False)
+    plt.tick_params(axis='both', which='major', labelsize=14)
     # Show Plot
     return st.pyplot(plt)
 # filter shop within list
@@ -304,14 +310,14 @@ choice_district = st.sidebar.selectbox('Choose a district',  ('Berlin',  'Charlo
 
 if choice_district == 'Berlin':
     choice_shop = st.sidebar.selectbox('Choose a shop type', ('Baby clothing store', 'Bag store','Beauty supplies store','Bridal store',"Children's clothing store",
- 'Costume store','Department store','Emboidery & Clothing alternation store','Fashion accessories store','Footwear store','Formal wear store',
+ 'Costume store','Department store','Tailor store','Fashion accessories store','Footwear store','Formal wear store',
  'General clothing store','Hat store','Home supplies store','Jeans store','Jewelry store','Leather store','Maternity store',
  "Men's clothing store",'Optical store','Outlet store','Pet store','Plus size clothing store','Second hand clothing store',
  'Shopping mall','Sportswear store','Swimwear store','T-shirt store','Underwear store','Vintage clothing store',
  'Wholesalers store',"Women's clothing store",'Work clothing store','Youth clothing store'))
 else:
     choice_shop = st.sidebar.selectbox('Choose a shop type', ('Baby clothing store', 'Bag store','Beauty supplies store','Bridal store',"Children's clothing store",
- 'Costume store','Department store','Emboidery & Clothing alternation store','Fashion accessories store','Footwear store','Formal wear store',
+ 'Costume store','Department store','Tailor store','Fashion accessories store','Footwear store','Formal wear store',
  'General clothing store','Hat store','Home supplies store','Jeans store','Jewelry store','Leather store','Maternity store',
  "Men's clothing store",'Optical store','Outlet store','Pet store','Plus size clothing store','Second hand clothing store',
  'Shopping mall','Sportswear store','Swimwear store','T-shirt store','Underwear store','Vintage clothing store',
@@ -322,7 +328,7 @@ if st.sidebar.button("Show results"):
     st.session_state.gap_on = False
 
 st.sidebar.header('Calculate')
-choice_shop2 = st.sidebar.selectbox('Shop type', ('Baby clothing', 'Bag shop','Beauty supplies','Bridal store', "Children's clothing",'Costume store','Department store', 'Emboidery & Clothing alternation','Fashion accessories','Footwear','Formal wear','General clothing store','Hat shop','Home supplies','Jeans shop', 'Jewelry store', 'Leather store','Maternity store',"Men's clothing",'Optical store','Outlet store','Pet store','Plus size clothing','Second hand clothing','Shopping mall','Sportswear','Swimwear','T-shirt shop','Underwear','Vintage clothing store','Wholesalers',"Women's clothing",'Work clothing','Youth clothing'))
+choice_shop2 = st.sidebar.selectbox('Shop type', ('Baby clothing', 'Bag shop','Beauty supplies','Bridal store', "Children's clothing",'Costume store','Department store', 'Tailor store','Fashion accessories','Footwear','Formal wear','General clothing store','Hat shop','Home supplies','Jeans shop', 'Jewelry store', 'Leather store','Maternity store',"Men's clothing",'Optical store','Outlet store','Pet store','Plus size clothing','Second hand clothing','Shopping mall','Sportswear','Swimwear','T-shirt shop','Underwear','Vintage clothing store','Wholesalers',"Women's clothing",'Work clothing','Youth clothing'))
 
 if st.sidebar.button('Show gap analysis'):
     st.session_state.gap_on = True
@@ -349,7 +355,7 @@ if st.session_state.button_on:
         #header = f'{amount_shops} establishments are classified as {choice_shop.capitalize()} in Berlin.'
         #title = f'<p style="font-family:sans-serif; color:Black; font-size: 30px;"><b>{header}<b></p>'
         #st.markdown(title, unsafe_allow_html=True)
-        st.info(f'{amount_shops} establishments are classified as {choice_shop.capitalize()} in Berlin.')
+        st.info(f'{amount_shops} establishments are classified as {choice_shop} in Berlin.')
 
         if st.checkbox('Change to pinmap'):
             pin = display_district(df, choice_district)
@@ -366,7 +372,7 @@ if st.session_state.button_on:
         fig, ax= plt.subplots(figsize=(10, 5))
         sns.set(font_scale=2)
         sns.set_theme(style="white",font="sans-serif", palette="Set2", rc={"font.size":20,"axes.titlesize":16})
-        sns.barplot(y = 'neighbourhood_group', x = 'our_rating', data = red, ci=False, orient = 'h').set(title=f'Mean Google rating of {choice_shop.capitalize()}s \nin each district in 2019-2022',xlabel ="", ylabel = "")
+        sns.barplot(y = 'neighbourhood_group', x = 'our_rating', data = red, ci=False, orient = 'h').set(title=f'Mean Google rating of {choice_shop}s \nin each district in 2019-2022',xlabel ="", ylabel = "")
         for i, p in enumerate(ax.patches):
             width = p.get_width()
             ax.text(width + 0.07, p.get_y()+p.get_height()/1.4, red["count"].loc[i],ha="center", fontsize = 12)
@@ -398,7 +404,7 @@ if st.session_state.button_on:
             plt.yticks(x_axis,x_price, fontsize = 14)
             plt.xticks(fontsize = 14)
             plt.xlabel('Nr. of shops', fontsize=14)
-            plt.title(f'Price level of {choice_shop.capitalize()}s in each district**', fontsize=16)
+            plt.title(f'Price level of {choice_shop}s in each district**', fontsize=16)
             st.pyplot(fig2)
 
 
@@ -455,9 +461,9 @@ if st.session_state.button_on:
                 #title = f'<p style="font-family:sans-serif; color:Black; font-size: 30px;"><b>{header}<b></p>'
                 #st.markdown(title, unsafe_allow_html=True)
                 if amount_shops > 1:
-                    st.info(f'{amount_shops} establishments are classified as {choice_shop.capitalize()} in {choice_district}.')
+                    st.info(f'{amount_shops} establishments are classified as {choice_shop} in {choice_district}.')
                 elif amount_shops == 1:
-                    st.info(f'{amount_shops} establishment is classified as {choice_shop.capitalize()} in {choice_district}.')
+                    st.info(f'{amount_shops} establishment is classified as {choice_shop} in {choice_district}.')
 
 
                 if st.checkbox('Change to pinmap'):
@@ -475,7 +481,7 @@ if st.session_state.button_on:
                 #message1 = f'- The mean rating for {choice_shop.capitalize()}s in {choice_district} is of {mean_rat} stars.'
                 #title1 = f'<p style="font-family:sans-serif; color:Black; font-size: 20px;">{message1}</p>'
                 #st.markdown(title1, unsafe_allow_html=True)
-                st.success(f'- The mean Google maps rating from 2019 to 2022 for {choice_shop.capitalize()}s in {choice_district} is of {mean_rat} stars.')
+                st.success(f'- The mean Google maps rating from 2019 to 2022 for {choice_shop}s in {choice_district} is of {mean_rat} stars.')
 
                 # price info
                 cheap_shops = len(df[df['price'] == '€'])
@@ -495,20 +501,21 @@ if st.session_state.button_on:
                     sns.set_style("whitegrid")
                     #sns.set_theme(style="white",font="sans-serif", palette="Set2", rc={"font.size":20,"axes.titlesize":30})
                     sns.distplot(df['our_rating'], bins = 5, kde=False, hist_kws={'range':(0,5)}, color = 'blue')
-                    fig.suptitle(f'Mean rating of establishments \nclassified as {choice_shop.capitalize()}s in {choice_district}', fontsize=24, fontdict={"weight": "bold"})
+                    fig.suptitle(f'Mean rating of establishments \nclassified as {choice_shop}s in {choice_district}', fontsize=24, fontdict={"weight": "bold"})
                     plt.xlabel('Mean Google rating 2019-2022', fontsize=22)
-                    plt.ylabel('Nr. of restaurants', fontsize=22)
+                    plt.ylabel(f'Amount of {choice_shop}s', fontsize=22)
                     st.pyplot(fig)
                 with col3:
                     st.write(' ')
 
-                message2 = f'- There are {cheap_shops} low-price shops, {med_shops} medium-price shops and {exp_shops} high-price shops in the district. (Price information is not yet available for {rest} shops.)'
-                #title2 = f'<p style="font-family:sans-serif; color:Black; font-size: 20px;">{message2}</p>'
-                #st.markdown(title2, unsafe_allow_html=True)
+                if cheap_shops == 0 and med_shops == 0 and exp_shops == 0:
+                    message2 = f'- There is no available price information for {choice_shop}s in this district.'
+                else:
+                    message2 = f'- There are {cheap_shops} low-price shops, {med_shops} medium-price shops and {exp_shops} high-price shops in the district. (Information about price is not available for {rest} shops.)'
                 st.warning(message2)
 
             else:
-                st.info(f'There are no establishments categorized as {choice_shop.capitalize()} in {choice_district}.')
+                st.info(f'There are no establishments categorized as {choice_shop} in {choice_district}.')
 
 
 if st.session_state.gap_on:
