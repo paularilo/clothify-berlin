@@ -335,7 +335,13 @@ if st.sidebar.button("Explore"):
     st.session_state.gap_on = False
 
 st.sidebar.header('Gap analysis')
-choice_shop2 = st.sidebar.selectbox('Shop type', ('Baby clothing', 'Bag shop','Beauty supplies','Bridal store', "Children's clothing",'Costume store','Department store', 'Tailor store','Fashion accessories','Footwear','Formal wear','General clothing store','Hat shop','Home supplies','Jeans shop', 'Jewelry store', 'Leather store','Maternity store',"Men's clothing",'Optical store','Outlet store','Pet store','Plus size clothing','Second hand clothing','Shopping mall','Sportswear','Swimwear','T-shirt shop','Underwear','Vintage clothing store','Wholesalers',"Women's clothing",'Work clothing','Youth clothing'))
+choice_shop2 = st.sidebar.selectbox('Shop type', ('Baby clothing store', 'Bag store','Beauty supplies store','Bridal store',"Children's clothing store",
+ 'Costume store','Department store','Tailor store','Fashion accessories store','Footwear store','Formal wear store',
+ 'General clothing store','Hat store','Home supplies store','Jeans store','Jewelry store','Leather store','Maternity store',
+ "Men's clothing store",'Optical store','Outlet store','Pet store','Plus size clothing store','Second hand clothing store',
+ 'Shopping mall','Sportswear store','Swimwear store','T-shirt store','Underwear store','Vintage clothing store',
+ 'Wholesalers store',"Women's clothing store",'Work clothing store','Youth clothing store'))
+
 #shop_density = st.sidebar.selectbox('Shop density', ('Low', 'High'))
 #rent = st.sidebar.selectbox('Rent', ('Low', 'High'))
 #rating1 = st.sidebar.selectbox('Neighbouring shops rating', ('Low', 'High'))
@@ -577,11 +583,11 @@ if st.session_state.gap_on:
     rating_weight = -5
     top10 = gap_analysis(gapdf, num_loc_weight, rating_weight, rent_weight)
 
-    col1, col2 = st.columns([4,2])
+    col1, col2 = st.columns([4,3])
 
     with col1:
 # create map for the gap analysis
-        gapmap = folium.Map(location=[52.532538, 13.50973], zoom_start=10)
+        gapmap = folium.Map(location=[52.532538, 13.40973], zoom_start=10)
         folium.Choropleth(
             geo_data=new_neighbourhoods,
             name="choropleth",
@@ -595,7 +601,7 @@ if st.session_state.gap_on:
             reset=True
         ).add_to(gapmap)
         folium.LayerControl().add_to(gapmap)
-        st_folium(gapmap,width=800, height=550)
+        st_folium(gapmap,width=600, height=550)
 
     with col2:
         st.success(f'Based on rent price, shop densitiy and rating of neighbouring shops, \
