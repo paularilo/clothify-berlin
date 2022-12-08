@@ -554,8 +554,9 @@ def gap_analysis(filtered_df, num_loc_weight, rating_weight, rent_weight):
 
   df_norm2 =  df_norm2[weights.keys()] * weights.values()
   df_norm2['Total_score'] = df_norm2.sum(axis=1)
-  df_norm2 = df_norm2.sort_values(by='Total_score', ascending=False).reset_index(drop='index')
   df_norm2.insert(0,'neighbourhood', df_norm['neighbourhood'])
+  df_norm2 = df_norm2.sort_values(by='Total_score', ascending=False).reset_index(drop='index')
+
 
   top10 = df_norm2[['neighbourhood','Total_score']][:10]
 
