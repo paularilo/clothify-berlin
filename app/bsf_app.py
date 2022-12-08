@@ -10,6 +10,7 @@ import geopandas as gpd
 from folium.plugins import HeatMap
 from folium import plugins
 from time import sleep
+from sklearn.preprocessing import RobustScaler
 #from google.cloud import storage
 
 #from bsf_package.bsf_logic.design_streamlit import set_page_container_style
@@ -18,7 +19,7 @@ from time import sleep
 #from bsf_package.bsf_logic.plots import plot_rating_berlin, plot_price_berlin,  plot_hist, plot_count_district
 
 dir_name = os.path.abspath(os.path.dirname(__file__))
-location = os.path.join(dir_name, 'clean_b1_veryfinal_categories.csv')
+location = os.path.join(dir_name, 'data_final.csv')
 location2 = os.path.join(dir_name, 'neighbourhoods.geojson')
 
 #import data and geojson
@@ -83,18 +84,23 @@ def display_district(data, neighbourhood_var):
         district_df = data
     else:
         district_df = data[data.neighbourhood_group == neighbourhood_var]
-        # Create an initial map of Berlin
-        # Berlin latitude and longitude values
-        latitude = 52.532538
-        longitude = 13.520973
-        # create map and display it
-        berlin_map_district = folium.Map(location=[latitude, longitude], zoom_start=12)
+    # Create an initial map of Berlin
+    # Berlin latitude and longitude values
+    latitude = 52.532538
+    longitude = 13.520973
+    # create map and display it
+    berlin_map_district = folium.Map(location=[latitude, longitude], zoom_start=12)
     for i in range(0,len(district_df)):
         html=f"""
-            <h4>{district_df.iloc[i]['title']}:</h4>
-            <li>Rating: {district_df.iloc[i]['our_rating']}</li>
-            <li>Nr. reviews: {district_df.iloc[i]['star_nr']}</li>
-            <li>Categories: {district_df.iloc[i]['final_categories'][1:-1]}</li>
+            <h4 style = "font-family: Tahoma">
+                {district_df.iloc[i]['title']}:</h4>
+
+            <li style = "font-family: Tahoma">
+                Rating: {district_df.iloc[i]['our_rating']}</li>
+            <li style = "font-family: Tahoma">
+                Nr. reviews: {district_df.iloc[i]['star_nr']}</li>
+            <li style = "font-family: Tahoma">
+                Categories: {district_df.iloc[i]['final_categories'][1:-1]}</li>
             """
         iframe = folium.IFrame(html=html, width=200, height=100)
         popup = folium.Popup(iframe, max_width=350)
@@ -227,7 +233,6 @@ def mean_per_district(data, district):
     df = df.merge(rat, on = 'Store Category')
     df = df.sort_values('Mean rating', ascending = True)
 
-
     store_category = df['Store Category']
     num_stores = df['Number of stores']
     mean_stores = df['Mean rating']
@@ -307,7 +312,7 @@ st.title('Clothify')
 #st.sidebar.header('Settings')
 
 st.sidebar.header('Explore shop types in Berlin')
-choice_district = st.sidebar.selectbox('Choose a district',  ('Berlin',  'Charlottenburg-Wilm.', 'Friedrichshain-Kreuzberg', 'Lichtenberg', 'Marzahn - Hellersdorf', 'Mitte', 'Neukölln', 'Pankow',
+choice_district = st.sidebar.selectbox('Choose a district',  ('Berlin',  'Charlottenburg-Wilmersdorf', 'Friedrichshain-Kreuzberg', 'Lichtenberg', 'Marzahn - Hellersdorf', 'Mitte', 'Neukölln', 'Pankow',
 'Reinickendorf', 'Spandau', 'Steglitz - Zehlendorf', 'Tempelhof - Schöneberg', 'Treptow - Köpenick'))
 
 if choice_district == 'Berlin':
@@ -325,14 +330,17 @@ else:
  'Shopping mall','Sportswear store','Swimwear store','T-shirt store','Underwear store','Vintage clothing store',
  'Wholesalers store',"Women's clothing store",'Work clothing store','Youth clothing store', 'All shops'))
 
-if st.sidebar.button("Show results"):
+if st.sidebar.button("Explore"):
     st.session_state.button_on = True
     st.session_state.gap_on = False
 
-st.sidebar.header('Calculate')
+st.sidebar.header('Gap analysis')
 choice_shop2 = st.sidebar.selectbox('Shop type', ('Baby clothing', 'Bag shop','Beauty supplies','Bridal store', "Children's clothing",'Costume store','Department store', 'Tailor store','Fashion accessories','Footwear','Formal wear','General clothing store','Hat shop','Home supplies','Jeans shop', 'Jewelry store', 'Leather store','Maternity store',"Men's clothing",'Optical store','Outlet store','Pet store','Plus size clothing','Second hand clothing','Shopping mall','Sportswear','Swimwear','T-shirt shop','Underwear','Vintage clothing store','Wholesalers',"Women's clothing",'Work clothing','Youth clothing'))
+#shop_density = st.sidebar.selectbox('Shop density', ('Low', 'High'))
+#rent = st.sidebar.selectbox('Rent', ('Low', 'High'))
+#rating1 = st.sidebar.selectbox('Neighbouring shops rating', ('Low', 'High'))
 
-if st.sidebar.button('Show gap analysis'):
+if st.sidebar.button('Calculate'):
     st.session_state.gap_on = True
     st.session_state.button_on = False
 
@@ -349,7 +357,6 @@ with placeholder.container():
     # create map and display it
     m = folium.Map(location=[latitude, longitude], zoom_start=11.05)
     st_folium(m, width=1500, height=400)
-
 
 if st.session_state.button_on:
     empty()
@@ -523,7 +530,73 @@ if st.session_state.button_on:
             else:
                 st.info(f'There are no establishments categorized as {choice_shop} in {choice_district}.')
 
+### GAP ANALYSIS
+location4 = os.path.join(dir_name, 'new_neighbourhoods.geojson')
+new_neighbourhoods = gpd.read_file(location4)
+location3 = os.path.join(dir_name, 'gap_analysis.csv')
+gapdata = pd.read_csv(location3)
+gapdf = filtercategory(gapdata, choice_shop2)
+
+
+def gap_analysis(filtered_df, num_loc_weight, rating_weight, rent_weight):
+  df_norm = filtered_df.groupby('neighbourhood',as_index=False).agg({'title':'count','our_rating':'mean','rent_sqm':'mean'})
+  df_norm1 = filtered_df.groupby('neighbourhood',as_index=False).agg({'title':'count','our_rating':'mean','rent_sqm':'mean'})
+  df_norm1 = df_norm1.rename(columns = {'title': 'num_loc', 'our_rating': 'rating', 'rent_sqm': 'rent'})
+  df_norm1 = df_norm1.drop(columns='neighbourhood')
+
+  scaler = RobustScaler()
+  df_norm2 = pd.DataFrame(scaler.fit_transform(df_norm1), columns=df_norm1.columns)
+
+  weights = {
+  "num_loc" : num_loc_weight,
+  "rating" : rating_weight,
+  "rent" : rent_weight}
+
+  df_norm2 =  df_norm2[weights.keys()] * weights.values()
+  df_norm2['Total_score'] = df_norm2.sum(axis=1)
+  df_norm2 = df_norm2.sort_values(by='Total_score', ascending=False).reset_index(drop='index')
+  df_norm2.insert(0,'neighbourhood', df_norm['neighbourhood'])
+
+  top10 = df_norm2[['neighbourhood','Total_score']][:10]
+
+  return top10
+
+#shop_density = st.sidebar.selectbox('Shop density', ('Low', 'High'))
+#rent = st.sidebar.selectbox('Rent', ('Low', 'High'))
+#rating1 = st.sidebar.selectbox('Neighbouring shops rating', ('Low', 'High'))
 
 if st.session_state.gap_on:
     empty()
-    st.markdown("Gap analysis in here")
+
+    num_loc_weight = -5
+    rent_weight = -5
+    rating_weight = -5
+    top10 = gap_analysis(gapdf, num_loc_weight, rating_weight, rent_weight)
+
+    col1, col2 = st.columns([3,2])
+
+
+    with col1:
+# create map for the gap analysis
+        gapmap = folium.Map(location=[52.532538, 13.70973], zoom_start=10)
+        folium.Choropleth(
+            geo_data=new_neighbourhoods,
+            name="choropleth",
+            data = top10,
+            columns=['neighbourhood',"Total_score"],
+            key_on='feature.properties.neighbourhood',
+            fill_color="Set2",
+            fill_opacity=0.5,
+            line_opacity=0.8,
+            legend_name="Top districts to open your shop!",
+            reset=True
+        ).add_to(gapmap)
+        folium.LayerControl().add_to(gapmap)
+        st_folium(gapmap,width=1000, height=550)
+
+    with col2:
+        st.success(f'Based on rent price, shop densitiy and rating of neighbouring shops, \
+            these are the 10 top neighbourhoods to open a {choice_shop2}:')
+        for i in range(0,len(top10)):
+            a = top10['neighbourhood'][i]
+            st.markdown(f'{i+1}. {a}')
