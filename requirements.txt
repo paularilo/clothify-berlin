@@ -8,6 +8,6 @@ matplotlib
 seaborn
 pip
 setuptools>=26
-sklearn
+scikit-learn
 #bsf==0.0.1
 #google
