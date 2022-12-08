@@ -64,7 +64,10 @@ def search_venue(df):
     return list(zip(df['lat'], df['lon']))
 
 def heatmap_venues(data):
-    map = folium.Map(location=[52.5200, 13.4050], zoom_start=12)
+    latitude = 52.532538
+    longitude = 13.520973
+    # create map and display it
+    map  = folium.Map(location=[latitude, longitude], zoom_start=12)
     boroughs_style = lambda x: {'color': 'black', 'opacity': 0.9, 'fillColor': 'green', 'weight': 0.6}
     folium.GeoJson(
       geo_neighbourhoods.geometry,
@@ -74,7 +77,6 @@ def heatmap_venues(data):
     HeatMap(data).add_to(map)
     return map
 
-
 # pin map
 def display_district(data, neighbourhood_var):
     if neighbourhood_var == 'Berlin':
@@ -83,10 +85,10 @@ def display_district(data, neighbourhood_var):
         district_df = data[data.neighbourhood_group == neighbourhood_var]
         # Create an initial map of Berlin
         # Berlin latitude and longitude values
-    latitude = 52.520008
-    longitude = 13.404954
-    # create map and display it
-    berlin_map_district = folium.Map(location=[latitude, longitude], zoom_start=12)
+        latitude = 52.532538
+        longitude = 13.520973
+        # create map and display it
+        berlin_map_district = folium.Map(location=[latitude, longitude], zoom_start=12)
     for i in range(0,len(district_df)):
         html=f"""
             <h4>{district_df.iloc[i]['title']}:</h4>
@@ -342,8 +344,12 @@ placeholder = st.empty()
 
 # Main Page
 with placeholder.container():
-    m = folium.Map(location=[52.5200, 13.405], zoom_start=12) # show map if no button pressed
+    latitude = 52.532538
+    longitude = 13.520973
+    # create map and display it
+    m = folium.Map(location=[latitude, longitude], zoom_start=11.05)
     st_folium(m, width=1500, height=400)
+
 
 if st.session_state.button_on:
     empty()
