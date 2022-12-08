@@ -317,18 +317,18 @@ choice_district = st.sidebar.selectbox('Choose a district',  ('Berlin',  'Charlo
 
 if choice_district == 'Berlin':
     choice_shop = st.sidebar.selectbox('Choose a shop type', ('Baby clothing store', 'Bag store','Beauty supplies store','Bridal store',"Children's clothing store",
- 'Costume store','Department store','Tailor store','Fashion accessories store','Footwear store','Formal wear store',
+ 'Costume store','Department store','Fashion accessories store','Footwear store','Formal wear store',
  'General clothing store','Hat store','Home supplies store','Jeans store','Jewelry store','Leather store','Maternity store',
  "Men's clothing store",'Optical store','Outlet store','Pet store','Plus size clothing store','Second hand clothing store',
- 'Shopping mall','Sportswear store','Swimwear store','T-shirt store','Underwear store','Vintage clothing store',
+ 'Shopping mall','Sportswear store','Swimwear store','Tailor store','T-shirt store','Underwear store','Vintage clothing store',
  'Wholesalers store',"Women's clothing store",'Work clothing store','Youth clothing store'))
 else:
-    choice_shop = st.sidebar.selectbox('Choose a shop type', ('Baby clothing store', 'Bag store','Beauty supplies store','Bridal store',"Children's clothing store",
- 'Costume store','Department store','Tailor store','Fashion accessories store','Footwear store','Formal wear store',
+    choice_shop = st.sidebar.selectbox('Choose a shop type', ('All shops','Baby clothing store', 'Bag store','Beauty supplies store','Bridal store',"Children's clothing store",
+ 'Costume store','Department store','Fashion accessories store','Footwear store','Formal wear store',
  'General clothing store','Hat store','Home supplies store','Jeans store','Jewelry store','Leather store','Maternity store',
  "Men's clothing store",'Optical store','Outlet store','Pet store','Plus size clothing store','Second hand clothing store',
- 'Shopping mall','Sportswear store','Swimwear store','T-shirt store','Underwear store','Vintage clothing store',
- 'Wholesalers store',"Women's clothing store",'Work clothing store','Youth clothing store', 'All shops'))
+ 'Shopping mall','Sportswear store','Swimwear store','Tailor store','T-shirt store','Underwear store','Vintage clothing store',
+ 'Wholesalers store',"Women's clothing store",'Work clothing store','Youth clothing store'))
 
 if st.sidebar.button("Explore"):
     st.session_state.button_on = True
