@@ -535,8 +535,11 @@ location4 = os.path.join(dir_name, 'new_neighbourhoods.geojson')
 new_neighbourhoods = gpd.read_file(location4)
 location3 = os.path.join(dir_name, 'gap_analysis.csv')
 gapdata = pd.read_csv(location3)
-gapdf = filtercategory(gapdata, choice_shop2)
-
+choice_shop2 = [choice_shop2] #need it in list format for function filtercategory
+mask2 = data.final_categories.apply(lambda x: any(item for item in choice_shop2 if item in x)) # filter df if any category matching
+gapdf = gapdata[mask2]
+choice_shop2 = choice_shop2[0] #take only string
+amount_shops2 = len(gapdf) # amount of shops of that type in the selected district and category
 
 def gap_analysis(filtered_df, num_loc_weight, rating_weight, rent_weight):
   df_norm = filtered_df.groupby('neighbourhood',as_index=False).agg({'title':'count','our_rating':'mean','rent_sqm':'mean'})
@@ -574,12 +577,11 @@ if st.session_state.gap_on:
     rating_weight = -5
     top10 = gap_analysis(gapdf, num_loc_weight, rating_weight, rent_weight)
 
-    col1, col2 = st.columns([3,2])
-
+    col1, col2 = st.columns([4,2])
 
     with col1:
 # create map for the gap analysis
-        gapmap = folium.Map(location=[52.532538, 13.70973], zoom_start=10)
+        gapmap = folium.Map(location=[52.532538, 13.50973], zoom_start=10)
         folium.Choropleth(
             geo_data=new_neighbourhoods,
             name="choropleth",
@@ -593,7 +595,7 @@ if st.session_state.gap_on:
             reset=True
         ).add_to(gapmap)
         folium.LayerControl().add_to(gapmap)
-        st_folium(gapmap,width=1000, height=550)
+        st_folium(gapmap,width=800, height=550)
 
     with col2:
         st.success(f'Based on rent price, shop densitiy and rating of neighbouring shops, \
