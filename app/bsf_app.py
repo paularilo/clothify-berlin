@@ -286,7 +286,7 @@ def filtercategory(data, choice_shop):
 ### HERE THE APP BEGINS ###
 #first step streamlit
 st.set_page_config(
-    page_title='Shopify',
+    page_title='Clothify Berlin',
     layout='wide',
     page_icon=':rocket:'
 )
