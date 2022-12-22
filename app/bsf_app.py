@@ -65,8 +65,8 @@ def search_venue(df):
     return list(zip(df['lat'], df['lon']))
 
 def heatmap_venues(data):
-    latitude = 52.532538
-    longitude = 13.520973
+    latitude = 52.532537
+    longitude = 13.520972
     # create map and display it
     map  = folium.Map(location=[latitude, longitude], zoom_start=12)
     boroughs_style = lambda x: {'color': 'black', 'opacity': 0.9, 'fillColor': 'green', 'weight': 0.6}
@@ -86,8 +86,8 @@ def display_district(data, neighbourhood_var):
         district_df = data[data.neighbourhood_group == neighbourhood_var]
     # Create an initial map of Berlin
     # Berlin latitude and longitude values
-    latitude = 52.532538
-    longitude = 13.520973
+    latitude = 52.532537
+    longitude = 13.520972
     # create map and display it
     berlin_map_district = folium.Map(location=[latitude, longitude], zoom_start=12)
     for i in range(0,len(district_df)):
