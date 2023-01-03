@@ -2,7 +2,7 @@
 
 This is the final project for a data science bootcamp at Le Wagon Berlin.
 
-##Project summary
+## Project summary
 The project is intended as a product to help potential clothing business owners identify the perfect location for opening their store in Berlin It currently consists of 2 parts: a business analysis part and an NLP part to analyze google reviews.
 
 ### Business analysis 
