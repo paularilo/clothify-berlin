@@ -26,6 +26,6 @@ Regarding the NLP part, we used NLTK and Spacy to clean and prepare the data for
 
 We are currently working on create specialized review scores for staff, price and product for each our target shops. This new functionality will be added to the app.
 
-# Our product
+## Our product
 The product is available in Streamlit: https://clothify-berlin.streamlit.app/
 
